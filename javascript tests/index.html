@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Empty page for testing scale functions</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=weather"></script>
+
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+
+	<div id="map"></div>	
+	
+	
+	
+		<script type="text/javascript">
+
+
+			
+			function test() {
+			   		alert("Here are your data");
+		   }
+			
+//			function test2(x) {
+//			   		alert("Here is " + x);
+//		   }
+//			
+//			test2("ein gutes Ergebnis!");
+
+			function twop (first, second) {
+				document.write(first + " mag ich lieber als " + second + "<br />");
+			}
+			
+			twop("Bananen", "Äpfel");
+			twop("Tomaten", "Lauch");
+			
+			function multiplyNumbers(a, b) {
+				var c = a*b;
+				return c;
+			}
+			
+			document.write(multiplyNumbers(144,498));
+			
+			function first(){
+				document.write("I am the first function");
+			}
+			
+			function second(){
+				document.write("I am the second function");
+			}
+			
+			function do_it(){
+				first();
+				document.write("<br />");
+				second();
+			}
+			
+			do_it();
+			
+			var balls = 2;
+			balls--;
+			document.write(balls);
+			
+			var no1 = 10;
+			var no2 = 20;
+			
+//			if(no1==no2)  // others: != <= >= {
+			if(no1!=no2){
+//			if(   (no1==10) &&  (no2 > no1) AND
+//			if(   (no1==10) ||  (no2 > no1) OR
+			document.write("Excellent");
+			} else {
+			document.write("Nope!");
+			}
+			
+			var boy = "arggard";
+			
+			switch(boy) {
+				case "michael":
+					document.write("Hallo Michael!");
+					break;
+				case "peter":
+					document.write("Hallo Peter!");
+					break;
+				default: 
+					document.write("Hallo Du!");
+					break;  //not necessary since it's the last one
+			}
+			
+			
+		</script>
+		<form>
+			<input type="button" value="Write data" onclick="test()">		
+		</form>
+
+
+	</body>
+</html>
