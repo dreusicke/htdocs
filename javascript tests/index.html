@@ -2,12 +2,30 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Empty page for testing scale functions</title>
-		<script type="text/javascript" src="d3/d3.js"></script>
-		<script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=weather"></script>
+		<title>Page for testing</title>
 
 		<style type="text/css">
 		</style>
+		<script type="text/javascript">
+//			creating the constructor function
+			function person(name, age){
+				this.name = name; // whatever we pass in as "name" should be "name of this object"
+				this.age = age;
+				this.yearsUntilRetire = yearsLeft; // assign the function to the object: no paranthesis!
+			}
+			
+			function yearsLeft(){
+				var numYears = 65 - this.age;
+				return numYears; //return the result of the calculation
+			}
+//			creating instances
+			var michael = new person("Michael Dreusicke", 46);
+			var manfred = new person("Manfred Dreusicke", 77);
+			
+//			alternative: object initializer
+			kathrin = {name:"Kathrin Dreusicke", age:46};
+			lilo = {name:"Lieselotte Dreusicke", age: 77};
+		</script>
 	</head>
 	<body>
 
@@ -89,12 +107,93 @@
 					break;  //not necessary since it's the last one
 			}
 			
+			var x = 1;
+			while(x<100){
+				document.write("Diese Nummer ist " + x + "<br />");
+				x *= 2;
+			}
+		
+		for(var i=0; i<1; i++){
+			document.write("<br />" + "for");
+		}
+
+		var x = 0;
+		while(x<1){
+			document.write("<br />" + "while");
+			x++;
+			}
+
+		do{
+			document.write("<br />" + "do");
+			x++;
+			}while(x<1);
 			
+		var tuna = "hey I am a tuna fish.";
+			document.write("<br /><br />" + tuna.length);
+			
+		document.write("<br /><br />" + michael.name + " hat noch " + michael.yearsUntilRetire() + " bis zur Rente"); // with parenthesis!
+			
+			var fam1 = new Array("Michael", "Manfred", "Lieselotte", "Kathrin");
+			var fam2 = new Array("Angelo", "Wolfgang", "Mutter", "Johannes");
+			document.write("<br />" + fam1[2] + fam1[2].length);
+			
+			var families = fam1.concat(fam2);
+			document.write(families[7]);
+			
+			var s1 = families.join(" - "); // join: converts an array to a string. Parameter: passing in separation symbol instead of comma
+			document.write(s1);
+			families.pop(); //deletes last element of the array
+			document.write(families[6] + "<br />");
+			families.reverse(); //reverse the index of the array
+			document.write(s1 + "<br />");
+			families.push("Judith", "Laslo"); //add elements to the array
+			document.write(families + "<br />");
+			families.sort(); //sort elements in alphabetical order
+			document.write(families + "<br />");
+			
+		//var pie = prompt("Enter your name", "default");
+		
+//		var atest = new Array (3);
+//		for (i=0; i<3; i++){
+//			atest[i] = prompt("write something",""); 
+//		}
+//		document.write(atest);
+//		document.write(atest[0] + atest[1] + atest[2]);
+			
+			
+//			associative array
+			var newArray = new Array;
+			newArray["color"] = ["blue"];
+			newArray["food"] = ["apple"];
+			document.write("The color of Michael's eyes is " + newArray["color"]);
+			
+		
+//		Date functions
+//		function print () {
+//		document.write("something, ");
+//		}
+//			
+//		setInterval("print()", 1000);	
+
+		function printTime(){
+		var now = new Date();
+		var hours = now.getHours();
+		var mins = now.getMinutes();
+		var seconds = now.getSeconds();
+		document.write(hours +":" + mins +":" + seconds + "<br />");
+		}
+//		setInterval("printTime()", 1000);
+			
+			
+		for(var i=1; i<=20; i++){
+		document.write(i);
+		}
+		
 		</script>
 		<form>
 			<input type="button" value="Write data" onclick="test()">		
 		</form>
-
+		<a href="www.paux.de" onMouseOver="alert('Schönes Ziel!')">Touch me</a>
 
 	</body>
 </html>
