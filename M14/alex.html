@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <title>Ich rocke D3!</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script type="text/javascript" src="d3.js"></script>
+    <style type="text/css"> 
+
+html, body, #map {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.stations, .stations svg {
+  position: absolute;
+}
+
+.stations svg {
+  width: 300px;
+  height: 300px;
+  padding-right: 300px;
+  font: 10px sans-serif;
+}
+
+.stations circle {
+  fill: yellow;
+  fill-opacity: 0.8;
+  stroke: black;
+  stroke-width: 0px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script type="text/javascript">
+
+// Google Map erstellen
+var map = new google.maps.Map(document.getElementById('map'), {
+  zoom: 17,
+  center: new google.maps.LatLng(52.500083,13.508388),
+  mapTypeId: google.maps.MapTypeId.ROADMAP, 
+  styles: [
+      {
+        "stylers": [
+          { "lightness": -70 }
+        ]
+      }
+    ]
+});
+        
+var importFunction = d3.dsv(";","text/csv");
+              
+// Daten laden
+importFunction("sample.csv", function(data) {
+
+    // Den Werten eine Farbskala zuweisen
+   var light_min = d3.min(data, function(d) {                 
+                return d.light;
+            });
+    var light_max = d3.max(data, function(d) {
+                return d.light;
+            });
+    
+    var light_scale = d3.scale.linear()
+        .domain([light_min,light_max])
+        .range(["blue","red"]);
+//       .range(['#76ff00', '#ff492c']);
+
+
+    // Daten auf die map bringen
+    var overlay = new google.maps.OverlayView();
+
+  overlay.onAdd = function() {
+    var layer = d3.select(this.getPanes().overlayLayer).append("div")
+        .attr("class", "stations");
+
+
+// Jedes Element kriegt ein eigenes svg     
+    overlay.draw = function() {
+      var projection = this.getProjection()
+      var padding = 30;
+  
+      var marker = layer.selectAll("svg")
+          .data(data)
+          .each(transform) 
+        .enter().append("svg:svg")
+          .each(transform)
+          .attr("class", "marker");
+
+    // Kreise malen
+      marker.append("svg:circle")
+          .attr("r", 15)
+          .attr("cx", padding)
+          .attr("cy", padding)
+       .style("fill", function(d) {return getColor(d.Lichtfarbe);});
+      
+      // Label geben
+      marker.append("svg:text")
+          .attr("x", padding + 20)
+          .attr("y", padding)
+          .attr("dy", ".31em")
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "10px")
+          .attr("fill", "white")
+          .text(function(d) { 
+            return d.Lichtquelle; });
+
+// latlong in pixel umwandeln
+      function transform(d) {
+        data_point = new google.maps.LatLng(d.lat, d.lon);
+        data_point_projected = projection.fromLatLngToDivPixel(data_point);
+        return d3.select(this)
+            .style("left", (data_point_projected.x - padding) + "px")
+            .style("top", (data_point_projected.y - padding) + "px");
+      }
+    
+        // falls die Werte keine Punkte haben, dann in Zeile 115 auch ändern siehe bjoern
+//    function normalize(coordinate) {
+  //    if (coordinate > 1000) return coordinate / 100000;
+    //    else return coordinate;
+//   }
+ 
+ // Möglichkeit, abhängig vom Wert nicht eine Farbskala, sondern verschiedene Farben zuzuweisen   
+ function getColor(value){
+     
+      if (value === "gelblich") return "yellow";
+       if (value === "orange") return "orange";
+       if (value === "gruen") return "green";
+       else return "white";
+   }
+        
+    };
+  };
+
+  // Bind our overlay to the map…
+  overlay.setMap(map);
+});
+
+    </script>
+  </body>
+</html>
