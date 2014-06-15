@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Linear Scatterplot</title>
+        <script type="text/javascript" src="d3.v3.js"></script>
+        <style type="text/css">
+            .axis path,
+            .axis line {
+            fill: none;
+            stroke: black;              /* ändert hier mal die Farbe */
+            shape-rendering: crispEdges;
+            }
+            .axis text {
+            font-family: sans-serif;
+            font-size: 11px;            /* Schriftgröße der Achsenbeschriftung */
+            }
+            .trendline {                /* Eigenschaften der Trendlinie */
+            stroke: green;              /* Farbe der Trendlinie */
+            shape-rendering: crispEdges;
+            stroke-width: 1px;          /* Strichstärke der Trendlinie */
+            }
+            h1 {
+            font-family: sans-serif;
+            font-size: 18px;
+            }
+            .label {                     /* Eigenschaften der Textlabels */
+                font-family: sans-serif;
+                font-size: 11px;
+                fill: blue;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Ausstoss an Schwefeldioxid (in Tausend Tonnen) in Abhängigkeit der Einwohnerzahl</h1>
+        <script type="text/javascript">
+            // Width and height
+            var w = 1000;               // Breite der Zeichenfläche
+            var h = 500;                // Höhe der Zeichenfläche
+            var margin_right = 70;    // der rechte Rand, damit ein wenig Abstand zum Rand unserer Zeichenfläche bleibt
+            var margin_left = 70;     // der linke Rand, damit das Diagramm nicht gleich am Bildschirmrand beginnt
+            var margin_top = 30;     // der Abstand nach oben
+            var margin_bottom = 50;   // und schließlich der Abstand nach unten
+            var padding = 5;        // Abstand der Labels von den Punkten
+
+            // create SVG
+            var svg = d3.select("body")
+                        .append("svg")
+                        .attr("width",w)
+                        .attr("height",h);
+              
+            // das sind alles Variablen, auf die wir später noch zugreifen müssen. Wenn sie hier, außerhalb von Funktions-Blöcken definiert werden, ist das im gesamten Script möglich.
+            var dataset; 
+            var xScale;
+            var yScale;
+            var x_min;
+            var x_max;
+            var y_min;
+            var y_max;
+              
+            var importFunction = d3.dsv(";","text/csv");
+            // import data
+            importFunction("inflation.csv", function(data) {
+                console.log(data);
+                dataset = data;
+
+            x_min = d3.min(dataset, function(d) {
+                        d.Y2014M04int = +d.Y2014M04;
+                        return d.Y2014M04int ;});
+            x_max = d3.max(dataset, function(d) {
+                         return d.Y2014M04int;});
+            x_max = 2;                            // Die Streuung der Werte ist so groß, dass nicht alle gleichzeitig gut ins Diagramm passen
+                                                            // Wenn Ihr die Kommentarstriche vor diesem Eintrag löscht, verkleinert Ihr den dargestellten Bereich.
+            y_min = d3.min(dataset, function(d) {
+                        d.Y2014M04Dfloat = parseFloat(d.Y2014M04D);
+                        return d.Y2014M04Dfloat ;});
+            y_max = d3.max(dataset, function(d) {
+                        return d.Y2014M04Dfloat;});
+            y_max = 2;                               // Das gleiche nochmal in y-Richtung
+                
+            // hier wird die Skalierung bestimmt, d.h. wie die Eingabewerte auf Koordinaten auf der Zeichenfläche umgerechnet werden.
+                xScale = d3.scale.linear()      // linear() kann hier durch log() ersetzt werden
+                .domain([x_min,x_max])
+                .range([margin_left,w-margin_right]);
+
+                yScale = d3.scale.linear()      // linear() kann hier durch log() ersetzt werden
+                .domain([y_min,y_max])
+                .range([h-margin_bottom,margin_top]);
+
+                generateVis();
+              });
+
+function generateVis(){
+
+    var circles = svg.selectAll("circle")
+              .data(dataset)
+              .enter()
+              .append("circle");
+
+    // Darstellung der einzelnen Wertepunkte
+    circles.attr("cx", function(d,i) {
+                return xScale(d.Y2014M04int);  // Einwohnerzahl 2011 auf die x-Achse
+            })
+            .attr("cy", function(d) {
+                return yScale(d.Y2014M04Dfloat);    // Schwefeloxid-Austausch auf die y-Achse
+            })
+            .attr("r", 5);
+    
+    // Darstellung der Ländernamen als Textlabel
+    var texts = svg.selectAll("text")
+         .data(dataset)
+         .enter()
+         .append("text")
+         .text(function(d) {
+            return d.land;      // hier wird der Ländername abgerufen
+         })
+         .attr("x", function(d) {
+            return xScale(d.Y2014M04int) + padding;
+         })
+         .attr("y", function (d) {
+             return yScale(d.Y2014M04Dfloat) + padding;
+         })
+        .attr("class","label");
+
+    // Darstellung der x-Achse
+    var xAxis = d3.svg.axis().scale(xScale)
+        .tickFormat(function (d) {                        // "Ticks" sind die einzelnen Abschnitte auf der Skala
+        return xScale.tickFormat(4,d3.format(",d"))(d)  // die Formatierung ist nicht ganz einfach, aber Ihr könnt mit dem Wert "4" spielen
+        })
+        .orient("bottom");
+    
+    svg.append("g")
+      .attr("class","axis")
+      .attr("transform", "translate(0," + (h - margin_bottom) + ")")
+      .call(xAxis);
+    
+    // Darstellung der y-Achse
+    var yAxis = d3.svg.axis().scale(yScale)
+        .tickFormat(function (d) {                        // "Ticks" sind die einzelnen Abschnitte auf der Skala
+        return xScale.tickFormat(4,d3.format(",d"))(d)  // die Formatierung ist nicht ganz einfach, aber Ihr könnt mit dem Wert "4" spielen
+        })
+        .orient("left");
+
+    svg.append("g")
+      .attr("class","axis")
+      .attr("transform", "translate("+margin_left+",0)")
+      .call(yAxis);
+
+    // Das hier dient zur Vorbereitung der Berechnung der Trendlinie
+    // Die x- und y-Werte werden jeweils in einen "Array", also eine Liste von mehreren Werten geschrieben
+    var y_values = new Array();
+    var x_values = new Array();
+    dataset.forEach(function(d){
+        x_values.push(d.Y2014M04int);
+        y_values.push(d.Y2014M04Dfloat);
+    });
+    
+    // der Aufruf dieser Funktion berechnet die Trendlinie
+    var regression = linearRegression(y_values,x_values);
+    
+    // Zum Zeichnen der Trendlinie nehmen wir die Punkte an x_min und x_max
+    var rx1 = x_min;
+    var ry1 = regression.fn(rx1);
+    var rx2 = x_max;
+    var ry2 = regression.fn(rx2);
+    
+    // und hier wird die Trendlinie hinzugefügt
+    // Achtung: Die Trendlinie funktioniert nur zuverlässig, wenn die Skalierung beider Achsen linear ist
+    //
+    svg.append("line")
+        .attr("class","trendline")
+        .attr("x1", xScale(rx1))
+        .attr("y1", yScale(ry1))
+        .attr("x2", xScale(rx2))
+        .attr("y2", yScale(ry2));
+}
+
+// Funktion um eine lineare Regression zu berechnen (Trent Richardson http://trentrichardson.com/2010/04/06/compute-linear-regressions-in-javascript/ )
+function linearRegression(y,x){
+    var lr = {};
+    var n = y.length;
+    var sum_x = 0;
+    var sum_y = 0;
+    var sum_xy = 0;
+    var sum_xx = 0;
+    var sum_yy = 0;
+
+    for (var i = 0; i < y.length; i++) {
+
+        sum_x += x[i];
+        sum_y += y[i];
+        sum_xy += (x[i]*y[i]);
+        sum_xx += (x[i]*x[i]);
+        sum_yy += (y[i]*y[i]);
+    }
+    
+    lr['fn'] = function (x) { return this.slope * x + this.intercept; };
+    lr['slope'] = (n * sum_xy - sum_x * sum_y) / (n*sum_xx - sum_x * sum_x);
+    lr['intercept'] = (sum_y - lr.slope * sum_x)/n;
+    lr['r2'] = Math.pow((n*sum_xy - sum_x*sum_y)/Math.sqrt((n*sum_xx-sum_x*sum_x)*(n*sum_yy-sum_y*sum_y)),2);
+
+    return lr;
+}
+        </script>
+    </body>
+</html>

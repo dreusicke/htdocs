@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Linearer Scatterplot M. Dreusicke</title>
+        <script type="text/javascript" src="d3.v3.js"></script>
+        <style type="text/css">
+            html {
+            background-color: black;
+            }
+            .axis path, /* sowohl der "path", also die durchgehende horizontale Linie der Skala (axis) */
+            .axis line { /* als auch die einzelnen Striche darauf sollen folgende Eigenschaften haben: */
+            fill: none;  /* die Linien sollen nicht gefüllt sein (was im Allgemeinen auch keinen Sinn ergibt - eine Linie hat kein Volumen, das man Füllen könnte */
+            stroke: #c9c9c9; /* die Linienfarbe soll schwarz sein */
+            
+/*            shape-rendering: crispEdges;  sorgt dafür, dass die Linien scharf, ohne Weichzeichnung dargestellt werden */
+            }
+            .axis text {                /* was hier folgt, soll für den Text, i.e. die Zahlen gelten, die auf der Skala dargestellt werden */
+            font-family: sans-serif;    /* Standardschrift ohne Serifen */
+            font-size: 11px;            /* Schriftgröße 11px Höhe */
+            fill: white;
+            }
+            .index_lines {
+            stroke: #ccc;               /* Farbe der Verbindungslinien */
+            stroke-width: 1px;          /* Strichstärke der Verbindungslinien */
+            }
+            h1 {
+                font-family: sans-serif;
+                font-size: 18px;        
+                color: #ccc;
+                
+            }
+            .hell {
+            color: #fff !important;
+            }
+            a {
+            color: grey;
+            font-family: Arial;
+            font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Verkehrstote in 2011</h1>
+        <p> <span style="color:grey; font-family:arial; font-size:11px; line-height: 15px;">Der eindimensionale Scatterplott zeight die Anzahl der Verkehrstoten im Jahr 2011.</span>
+
+            <a target="_blank" href="http://epp.eurostat.ec.europa.eu/tgm/table.do?tab=table&init=1&language=de&pcode=tsdtr420&plugin=1">Quelle</a>
+        </p>
+        <p> <span style="color:grey; font-family:arial; font-size:11px; line-height: 15px;">
+Aussagekräftig sind die Zahlen allerdings erst durch weitere Bezugsgrößen wie Anzahl der Bevölkerung, Anzahl der Verkehrsteilnehmer sowie Anzahl der zurückgelegten km. Durch diese weiteren Informationen dürfte sich z.B. die Spitzenstellung von Deutschland erheblich relativieren.            
+            </span>
+        </p>
+        
+        <script type="text/javascript"> // D3 ist eine javascript-Bibliothek, also findet alles Entscheidende hier im Javascript-Teil statt
+            
+              var w = 1000; // Die Breite der Zeichnungsfläche, i.e. wie breit soll die Diagrammdarstellung sein?
+              var h = 500;  // Die Höhe der Zeichnungsfläche
+              var padding = 5;  // Padding ist ein kleiner "Sicherheitsabstand", der zum Beispiel zwischen Strichen und Schrift eingeführt wird
+                                // Das Diagramm wird dadurch "luftiger" und besser lesbar, probiert es einfach aus
+              var margin_right = 30;    // der rechte Rand, damit ein wenig Abstand zum Rand unserer Zeichenfläche bleibt
+              var margin_left = 30;     // der linke Rand, damit das Diagramm nicht gleich am Bildschirmrand beginnt
+              var margin_top = 100;     // der Abstand nach oben
+              var margin_bottom = 50;   // und schließlich der Abstand nach unten
+              var line_height = 20;     // die Höhe der Striche, die die einzelnen Werte markieren
+              var y1 = margin_top;      // vertikaler Anfangswert der Striche
+              var y2 = margin_top+line_height; // vertikaler Endwert der Striche
+              var pointer_length = 100; // Die Länge des Bindestriches zwischen den Wertestrichen und den Länder-Labeln
+              var label_spacing = 15;   // Der Mindestabstand zwischen zwei Länder-Labeln
+                
+              var svg = d3.select("body")   // wähle das HTML-Tag <body> aus
+                        .append("svg")      // erzeuge dort eine Zeichenfläche
+                        .attr("width",w)    // mit der Breite w
+                        .attr("height",h);  // und der Höhe h
+              
+              var dataset;  // in dieser Variable werden alle Daten gespeichert, die wir visualisieren wollen
+              
+              var xScale;   // hier speichern wir später den Skalierungsfaktor, der die Eingabewerte auf x-Koordinaten innerhalb der Breite der Zeichenfläche umrechnet
+              
+              var importFunction = d3.dsv(";","text/csv");  // Hier wird das Trennzeichen zwischen den Spalten ausgewählt, bei Excel ist das meistens das Semikolon. 
+              // Daten importieren
+              importFunction("inflation.csv", function(data) {    // Hier könnt Ihr den Dateinamen ändern, falls Ihr eine andere Tabelle laden wollt.
+
+                dataset = data; // speichern der geladenen Daten in der Variable "dataset"
+
+            // hier finden wir den kleinsten und größten Wert im Datenset heraus
+            // wollt Ihr z.B. ein anderes Jahr betrachten, müsst Ihr hier d.t2011 durch d.v2010 o.ä. ersetzen
+                var min = d3.min(dataset, function(d){  // (ich will nicht zuviel erklären, das hier nehmt z.B. einfach mal so hin)
+                  d.t2011float = parseFloat(d.t2011);   // D3 liest alle Werte aus der Excel-Tabelle als Texte ein. Was für Menschen keinen großen Unterschied macht, ist für Computer essentiell - sie müssen wissen, ob ein Wert eine Zahl oder einen Text darstellt.
+                    // mit parseFloat(d.t2011) machen wir aus dem Text eine Zahl und speichern sie in der neuen Spalte d.2011float
+                        return d.t2011float ;
+                }); 
+                var max = d3.max(dataset, function(d){
+                  return d.t2011float;
+                });
+                  
+            // diese Anweisung sortiert unsere Daten der Größe nach
+                dataset = dataset.sort(function(a,b) {return a.t2011float-b.t2011float;});
+                                                      
+                xScale = d3.scale.linear()
+                .domain([min, max]) // der Bereich der Eingangswerte wird gesetzt
+                .range([margin_left,w-margin_right]) // das ist der Bereich der Ausgangswerte - alle Werte sollen auf die Breite unserer Zeichenfläche projeziert werden
+                .nice();    // sorgt dafür, dass die Skalierung nicht bei einer krummen Zahl anfängt und aufhört
+                
+                generateVis(); // und jetzt endlich fangen wir mit dem Zeichnen an, was in einer neuen Funktion passiert
+              });
+            
+function generateVis(){
+
+    var colorScaleLin = d3.scale.linear()
+      .domain([0, dataset.length-1])
+      .interpolate(d3.interpolateRgb)
+      .range(['#76ff00', '#ff492c']);
+
+    // Warnung: diese Anweisungen hier zu verstehen ist auch für Softwareentwickler_innen nicht leicht
+    // ist an dieser Stelle auch nicht unbedingt notwendig, alles zu verstehen
+    var lines = svg.selectAll("line")   // hier kündigen wir der Zeichenfläche ("svg") sozusagen an, dass wir Linien zeichnen wollen
+              .data(dataset)            // und zwar sollen die Daten dafür aus unserem Datenset kommen
+              .enter()                  // enter() besagt, dass neue Linien hinzugefügt werden sollen
+              .append("line");          // und hier wird es dann tatsächlich getan (append=hinzufügen)
+    
+    lines.attr("x1", function(d,i) {        // diese Formulierung sorgt dafür, dass die Werte für die einzelnen Länder
+                return xScale(d.t2011float);// nacheinander eingesetzt werden.
+            })
+            .attr("y1", y1)
+            .attr("x2", function(d,i) {
+                return xScale(d.t2011float);
+            })
+            .attr("y2", y2)
+            .attr('stroke', function(d, i) { return colorScaleLin(i)})
+            .attr("stroke-width","1");
+    
+    // hier werden die Verbindungslinien zur Zeichenfläche hinzugefügt
+    var index_lines = svg.append("g")   // "g" bezeichnet eine Gruppe von Objekten, die index_lines werden also "gruppiert"
+      .attr("class","index_lines")
+      .selectAll("line")
+      .data(dataset)
+      .enter()
+      .append("line");
+
+    // dieser Block hier sorgt dafür, dass zwischen den Länder-Labeln der oben vorgegebene Abstand eingehalten wird
+    // dabei wird in die Variable "last_x2" immer die letzte horizontale Position eingetragen und verglichen, ob die 
+    // nächste Position genug Abstand hat.
+    var last_x2 = 0;
+    index_lines.attr("x1", function(d,i) {
+                return xScale(d.t2011float);
+            })
+            .attr("y1",y2+padding)
+            .attr("x2", function(d,i){
+                var x2 = xScale(d.t2011float);
+                if (x2 < last_x2 + label_spacing) x2 = last_x2+label_spacing;
+                last_x2 = x2;
+                d.label_x = x2 + padding;
+                d.label_y = y2 + pointer_length + padding;
+                return x2;
+            })
+            .attr("y2",y2 + pointer_length);
+    
+    // Hier werden die text-labels hinzugefügt
+    var texts = svg.selectAll("text")
+         .data(dataset)
+         .enter()
+         .append("text")
+         .text(function(d) {
+            return d.land;
+         })
+         .style("text-anchor", "end")
+         .attr("transform", function(d){
+            var x = d.label_x;
+            var y = d.label_y;
+            return "translate("+x+","+y+") rotate(-90)";
+         })
+         .attr("font-family", "sans-serif")
+         .attr("font-size", "11px")
+//         .attr("fill", function(d, i) {
+//                        return "rgb(" + (1000/i) + "," + (500/i) + "," + (10/i) + ")";
+//                        });
+         .attr('fill', function(d, i) { return colorScaleLin(i)});
+    
+    
+    // hier wird die Skala hinzugefügt
+    var xAxis = d3.svg.axis().scale(xScale)
+      .tickFormat(function (d) {                        // "Ticks" sind die einzelnen Abschnitte auf der Skala
+        return xScale.tickFormat(4,d3.format(",d"))(d)  // die Formatierung ist nicht ganz einfach, aber Ihr könnt mit dem Wert "4" spielen
+      })
+    //.tickFormat(d3.format(".1"))
+    .orient("top");         // probiert "bottom" statt "top"
+    // 
+    svg.append("g")
+      .attr("class","axis")
+      .attr("transform", "translate(0," + margin_top + ")") // probiert margin_bottom statt margin_top
+      .call(xAxis);
+}
+        </script>
+    </body>
+</html>
