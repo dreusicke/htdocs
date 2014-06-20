@@ -26,8 +26,8 @@
 
       // Farbskala
       var color = d3.scale.quantize() 
-      .range(["rgb(237,248,233)", "rgb(186,228,179)",
-              "rgb(116,196,118)", "rgb(49,163,84)","rgb(0,109,44)"]);
+      .range(["rgb(204,204,255)", "rgb(168,168,219)",
+              "rgb(129,129,180)", "rgb(68,68,119)","rgb(0,0,51)"]);
 
       //Create SVG element
       var svg = d3.select("body")
@@ -35,9 +35,9 @@
             .attr("width", w)
             .attr("height", h);
 
-      
+      var importFunction = d3.dsv(";","text/csv");
       //Load in light pollution data
-      d3.csv("lightPollution.csv", function(data) {
+      importFunction("lightPollution.csv", function(data) {
 
         //Set input domain for color scale
         color.domain([
@@ -88,6 +88,7 @@
                 
                 if (value) {
                   //If value exists…
+                  console.log(value);
                   return color(value);
                 } else {
                   //If value is undefined…
