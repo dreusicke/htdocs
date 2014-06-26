@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <title>Ich rocke D3!</title>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script type="text/javascript" src="d3.js"></script>
+    <style type="text/css"> 
+
+html, body, #map {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.laterne, .laterne svg {
+  position: absolute;
+}
+
+.laterne svg {
+  width: 300px;
+  height: 300px;
+  padding-right: 300px;
+  font: 10px sans-serif;
+}
+
+.laterne circle {
+  fill: orange;
+  fill-opacity: 0.5;
+  stroke: black;
+  stroke-width: 0px;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script type="text/javascript">
+
+// Google Map erstellen
+var map = new google.maps.Map(document.getElementById('map'), {
+  zoom: 14,
+  center: new google.maps.LatLng(52.5382605293,13.4239440267),
+  mapTypeId: google.maps.MapTypeId.ROADMAP, 
+  styles: [
+      {
+        "stylers": [
+          { "lightness": -85 }
+        ]
+      }
+    ]
+});
+
+// Daten laden        
+              
+d3.csv("Prenzlauer_Allee.csv", function(data) {
+
+    // Daten auf die map bringen
+    var overlay = new google.maps.OverlayView();
+
+  overlay.onAdd = function() {
+    var layer = d3.select(this.getPanes().overlayLayer).append("div")
+        .attr("class", "laterne");
+
+
+// Jedes Element kriegt ein eigenes svg     
+    overlay.draw = function() {
+      var projection = this.getProjection()
+      var padding = 30;
+  
+      var marker = layer.selectAll("svg")
+          .data(data)
+          .each(transform) 
+        .enter().append("svg:svg")
+          .each(transform)
+          .attr("class", "marker");
+
+    // Kreise malen
+      marker.append("svg:circle")
+          .attr("r", function(d) { return d.lumen/4000;})
+          .attr("cx", padding)
+          .attr("cy", padding)
+      .style("fill", function(d) {return getColor(d.Energieeffizienz);});
+      
+      
+
+// latlong in pixel umwandeln
+      function transform(d) {
+        data_point = new google.maps.LatLng(d.lat, d.lon);
+        data_point_projected = projection.fromLatLngToDivPixel(data_point);
+        return d3.select(this)
+            .style("left", (data_point_projected.x - padding) + "px")
+            .style("top", (data_point_projected.y - padding) + "px");
+      }
+    
+       
+ 
+ // Möglichkeit, abhängig vom Wert nicht eine Farbskala, sondern verschiedene Farben zuzuweisen   
+  function getColor(value){
+     
+    if (value === "A+") return "yellow";
+      if (value === "A") return "red";
+     else return "white";
+  }
+        
+    };
+  };
+
+  // Bind our overlay to the map…
+  overlay.setMap(map);
+});
+
+d3.csv("Schoenhauser_Allee.csv", function(data) {
+
+    // Daten auf die map bringen
+    var overlay = new google.maps.OverlayView();
+
+  overlay.onAdd = function() {
+    var layer = d3.select(this.getPanes().overlayLayer).append("div")
+        .attr("class", "laterne");
+
+
+// Jedes Element kriegt ein eigenes svg     
+    overlay.draw = function() {
+      var projection = this.getProjection()
+      var padding = 30;
+  
+      var marker = layer.selectAll("svg")
+          .data(data)
+          .each(transform) 
+        .enter().append("svg:svg")
+          .each(transform)
+          .attr("class", "marker");
+
+    // Kreise malen
+      marker.append("svg:circle")
+          .attr("r", function(d) { return d.lumen/2000;})
+          .attr("cx", padding)
+          .attr("cy", padding)
+      .style("fill", function(d) {return getColor(d.Energieeffizienz);});
+      
+      
+
+// latlong in pixel umwandeln
+      function transform(d) {
+        data_point = new google.maps.LatLng(d.lat, d.lon);
+        data_point_projected = projection.fromLatLngToDivPixel(data_point);
+        return d3.select(this)
+            .style("left", (data_point_projected.x - padding) + "px")
+            .style("top", (data_point_projected.y - padding) + "px");
+      }
+    
+       
+ 
+ // Möglichkeit, abhängig vom Wert nicht eine Farbskala, sondern verschiedene Farben zuzuweisen   
+  function getColor(value){
+     
+    if (value === "A+") return "yellow";
+      if (value === "A") return "red";
+     else return "white";
+  }
+        
+    };
+  };
+
+  // Bind our overlay to the map…
+  overlay.setMap(map);
+});
+
+
+    </script>
+  </body>
+</html>
