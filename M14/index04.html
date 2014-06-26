@@ -17,11 +17,6 @@ html, body {
 }
 
 body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 10px;
-  background-color: black;
   color: #fff2cf;
   font-family: Arial, sans-serif;
 }
@@ -43,11 +38,11 @@ p {
   margin: 0 10px 0 0;
 }
 
-.stations, .stations svg {
+.datapoints, .datapoints svg {
   position: absolute;
 }
 
-.stations svg {
+.datapoints svg {
   width: 220px;
   height: 140px;
   padding-right: 200px;
@@ -67,7 +62,7 @@ p {
   box-shadow: -5px -5px 5px #888;
 }
 
-div.button {
+form.button {
 /*  position: absolute;*/
   bottom: 20px;
   right: 20px;
@@ -76,12 +71,11 @@ div.button {
   margin: 0 30% 1em 0;
 }
 
-form.button {
+input.button {
   padding: 10px;
   color: #6A4E03;
   margin-left: 1em;
 }
-
   
 label{
   fill: #fff7ac;
@@ -175,7 +169,7 @@ importFunction3("schoenhauser_test_01.csv", function(data) {
   // Add the container when the overlay is added to the map.
   overlay.onAdd = function() {
     var layer = d3.select(this.getPanes().overlayLayer).append("div")
-        .attr("class", "stations");
+        .attr("class", "datapoints");
 
   //    DRAW DATAPOINTS FOR heightS WITH SVG
 
@@ -236,6 +230,15 @@ importFunction3("schoenhauser_test_01.csv", function(data) {
           if (value > 4) return "red";
           else return "green";
       }
+//      function getColor(value){
+//
+//        if (value === "A+") return "yellow";
+//          if (value === "A") return "red";
+//         else return "white";  // we are looking for a proper value
+//      }
+//
+//        };
+//      };
     };
   };
 
@@ -276,7 +279,7 @@ importFunction2("prenzlauer_test_01.csv", function(data) {
   // Add the container when the overlay is added to the map.
   overlay.onAdd = function() {
     var layer = d3.select(this.getPanes().overlayLayer).append("div")
-        .attr("class", "stations");
+        .attr("class", "datapoints");
 
   //    DRAW DATAPOINTS FOR heightS WITH SVG
 
@@ -399,7 +402,7 @@ importFunction1("traffic_fake02.csv", function(data) {
   // Add the container when the overlay is added to the map.
   overlay.onAdd = function() {
     var layer = d3.select(this.getPanes().overlayLayer).append("div")
-        .attr("class", "stations");
+        .attr("class", "datapoints");
 
   //    DRAW DATAPOINTS FOR heightS WITH SVG
 
@@ -488,7 +491,7 @@ importFunction1("traffic_fake02.csv", function(data) {
 //  // Add the container when the overlay2 is added to the map.
 //  overlay2.onAdd = function() {
 //    var layer2 = d3.select(this.getPanes().overlayLayer).append("div")
-//        .attr("class", "stations");
+//        .attr("class", "datapoints");
 //
 //  //    DRAW DATAPOINTS FOR STOPS WITH SVG
 //
